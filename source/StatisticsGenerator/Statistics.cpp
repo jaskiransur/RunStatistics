@@ -14,8 +14,9 @@ Statistics::Statistics(boost::filesystem::path path)
 
 }
 
-std::pair<std::string, double> Statistics::GetHighest() const
+std::pair<std::string, double> Statistics::GetHighest()
 {
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
 	auto dataPoints = jsonReader_.GetDataPoints();
 	
 	auto it = std::max_element(dataPoints.cbegin(), dataPoints.cend(),
@@ -26,8 +27,10 @@ std::pair<std::string, double> Statistics::GetHighest() const
 	return *it;
 }
 
-std::pair<std::string, double> Statistics::GetLowest() const
+std::pair<std::string, double> Statistics::GetLowest() 
 {
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
+
 	auto dataPoints = jsonReader_.GetDataPoints();
 
 	auto it = std::min_element(dataPoints.cbegin(), dataPoints.cend(),
@@ -38,13 +41,17 @@ std::pair<std::string, double> Statistics::GetLowest() const
 	return *it;
 }
 
-std::vector<std::pair<std::string, double>> Statistics::GetDataPoints() const
+std::vector<std::pair<std::string, double>> Statistics::GetDataPoints() 
 {
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
+
 	return jsonReader_.GetDataPoints();
 }
 
-std::vector<double> Statistics::GetDataPoints(const std::string & startDate, const std::string & endDate) const
+std::vector<double> Statistics::GetDataPoints(const std::string & startDate, const std::string & endDate) 
 {
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
+
 	auto dataPoints = jsonReader_.GetKeyValueDataPoints();
 	auto lower_bound = dataPoints.lower_bound(startDate);
 	auto upper_bound = dataPoints.upper_bound(endDate);
@@ -67,8 +74,10 @@ std::vector<double> Statistics::GetDataPoints(const std::string & startDate, con
 	return rangeVector;
 }
 
-double Statistics::GetMeanDataPoint() const
+double Statistics::GetMeanDataPoint() 
 {
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
+
 	auto dataPoints = jsonReader_.GetDataPoints();
 	
 	auto total = std::accumulate(dataPoints.cbegin(), dataPoints.cend(), 0.0, 
@@ -80,15 +89,19 @@ double Statistics::GetMeanDataPoint() const
 	return total/dataPoints.size();
 }
 
-double Statistics::GetMedianDataPoint() const
+double Statistics::GetMedianDataPoint() 
 {
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
+
 	auto dataPoints = jsonReader_.GetDataPoints();
 	size_t medianPoint = dataPoints.size() / 2;
 	return dataPoints[medianPoint].second;
 }
 
-double Statistics::GetStandardDevDataPoint() const
+double Statistics::GetStandardDevDataPoint() 
 {
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
+
 	auto mean = GetMeanDataPoint();
 	auto dataPoints = jsonReader_.GetDataPoints();
 

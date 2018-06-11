@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(test_vector_get_wrong_data_type_returns_empty)
 	using namespace statsgenerator;
 	TreeReader<boost::property_tree::ptree> treereader = TreeReader<boost::property_tree::ptree>(dataPath);
 	BOOST_CHECK(treereader.GetVector<double>("disclaimer").size()== size_t(0));
-	BOOST_CHECK(treereader.GetVector<std::string>("bpi").size(), size_t(0));
+	BOOST_CHECK(treereader.GetVector<std::string>("bpi").size() == size_t(0));
 }
 
 BOOST_AUTO_TEST_CASE(test_times)
