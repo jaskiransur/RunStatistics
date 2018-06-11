@@ -1,14 +1,14 @@
-#include "Statistics.h"
-#include <vector>
-#include <map>
+#include <boost/format.hpp>
 #include <algorithm>
+#include <map>
 #include <numeric>
-
-#include "statisticsReader.h"
+#include <vector>
+#include "Statistics.h"
+#include "StatisticsReader.h"
 
 using statsgenerator::Statistics;
 
-Statistics::Statistics(std::string&& path)
+Statistics::Statistics(boost::filesystem::path path)
 	:jsonReader_(std::move(path))
 {
 
@@ -46,9 +46,20 @@ std::vector<std::pair<std::string, double>> Statistics::GetDataPoints() const
 std::vector<double> Statistics::GetDataPoints(const std::string & startDate, const std::string & endDate) const
 {
 	auto dataPoints = jsonReader_.GetKeyValueDataPoints();
-	auto size = std::distance(dataPoints.find(startDate), dataPoints.find(endDate));
+	auto lower_bound = dataPoints.lower_bound(startDate);
+	auto upper_bound = dataPoints.upper_bound(endDate);
+	
+	const auto startDistanceFromBegin = std::distance(dataPoints.begin(), lower_bound);
+	const auto endDistanceFromBegin = std::distance(dataPoints.begin(), upper_bound);
+
+
+	if (startDistanceFromBegin > endDistanceFromBegin)
+		throw std::runtime_error((boost::format("StartDate %1% is higher than end date %2%") % lower_bound->second %upper_bound->second).str());
+
+	const auto size = endDistanceFromBegin - startDistanceFromBegin;
+
 	std::vector<double> rangeVector(size);
-	std::transform(dataPoints.find(startDate), dataPoints.find(endDate), rangeVector.begin(),
+	std::transform(lower_bound, upper_bound, rangeVector.begin(),
 		[](decltype(dataPoints)::value_type& valueType) 
 	{
 		return valueType.second;

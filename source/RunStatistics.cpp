@@ -1,9 +1,10 @@
+#include <boost/program_options.hpp>
 #include <iostream>
-//#include "Config.h"
 #include "statisticsgenerator/Statistics.h"
 
 int main(int argc, char** argv)
 {
+
 	using namespace statsgenerator;
 	Statistics stats("C:\\dev\\repos\\coindesk\\data.json");
 	std::cout << "data points..." << std::endl;

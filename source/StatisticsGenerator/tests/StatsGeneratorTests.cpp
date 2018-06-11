@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE MyTest
+//#define BOOST_TEST_MODULE StatsGeneratorTests
 
 #include <boost\test\unit_test.hpp>
 #include <memory>
@@ -9,23 +9,56 @@
 #include "Config.h"
 #include "Statistics.h"
 
-BOOST_AUTO_TEST_CASE( test_scaler_data )
+
+namespace
 {
-	using namespace statsgenerator;
-	TreeReader<boost::property_tree::ptree> treereader = TreeReader<boost::property_tree::ptree>("test_data\data.json");
-	auto bpi = treereader.GetVector<double>("bpi");
-	auto disclaimer = treereader.GetScaler<std::string>("disclaimer");
-	std::cout << disclaimer << std::endl;
-	
-    BOOST_CHECK(disclaimer == "This data was produced from the CoinDesk Bitcoin Price Index. BPI value data returned as USD.");
+	const std::string dataPath = "C:\\dev\\repos\\coindesk\\test_data\\data.json";
+	constexpr double tolerance = 0.01;
 }
 
-BOOST_AUTO_TEST_CASE(test_vector_data)
+BOOST_AUTO_TEST_CASE( test_scaler_data_wrong_type_throws )
 {
 	using namespace statsgenerator;
-	
-	TreeReader<boost::property_tree::ptree> treereader = TreeReader<boost::property_tree::ptree>("test_data\data.json");
-	auto bpi = treereader.GetVector<double>("bpi");
-	
-	BOOST_CHECK(bpi.size() == 20);
+	TreeReader<boost::property_tree::ptree> treereader = TreeReader<boost::property_tree::ptree>(dataPath);
+	BOOST_CHECK_THROW(treereader.GetScaler<double>("disclaimer"), std::runtime_error);
+}
+
+
+BOOST_AUTO_TEST_CASE(test_vector_get_wrong_data_type_returns_empty)
+{
+	using namespace statsgenerator;
+	TreeReader<boost::property_tree::ptree> treereader = TreeReader<boost::property_tree::ptree>(dataPath);
+	BOOST_CHECK(treereader.GetVector<double>("disclaimer").size()== size_t(0));
+	BOOST_CHECK(treereader.GetVector<std::string>("bpi").size(), size_t(0));
+}
+
+BOOST_AUTO_TEST_CASE(test_times)
+{
+	using namespace statsgenerator;
+
+	TreeReader<boost::property_tree::ptree> treereader = TreeReader<boost::property_tree::ptree>(dataPath);
+	auto times = treereader.GetVector<std::string>("time");
+
+	BOOST_CHECK(times.size() == size_t(2));
+}
+
+namespace
+{
+	std::vector<std::pair<std::string, std::string>> expectedTimes{
+		{"updated", "Jan 21, 2018 00:03:00 UTC"},
+		{ "updatedISO", "2018-01-21T00:03:00+00:00" }
+	};
+}
+
+BOOST_AUTO_TEST_CASE(test_times_data)
+{
+	using namespace statsgenerator;
+
+	TreeReader<boost::property_tree::ptree> treereader = TreeReader<boost::property_tree::ptree>(dataPath);
+	auto times = treereader.GetVector<std::string>("time");
+	for (size_t index = 0; index < times.size(); ++index)
+	{
+		BOOST_CHECK(times[index].first == expectedTimes[index].first);
+		BOOST_CHECK(times[index].second == expectedTimes[index].second);
+	}
 }

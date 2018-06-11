@@ -33,9 +33,20 @@ namespace statsgenerator
 		{
 		}
 
-		~TreeReader() = default;
-		TreeReader(TreeReader& other) = default;
-		TreeReader& operator=(TreeReader& other) = default;
+		TreeReader(const TreeReader& other)
+			: path_(other.path_)
+			, tree_(other.tree_)
+		{
+		}
+		
+		TreeReader& operator=(const TreeReader& other)
+		{
+			std::lock_guard<std::recursive_mutex> guard(mutex_);
+			auto copy = TreeReader(other);
+			std::swap(path_, copy.path_);
+			std::swap(tree_, copy.tree_);
+			return *this;
+		}
 
 		TreeReader(TreeReader&& other)
 			: path_(std::move(other.path_))
@@ -45,10 +56,14 @@ namespace statsgenerator
 
 		TreeReader& operator=(TreeReader&& other)
 		{
+			std::lock_guard<std::recursive_mutex> guard(mutex_);
+
 			path_ = std::move(other.path_);
 			tree_ = std::move(other.tree_);
 			return *this;
 		}
+
+		~TreeReader() = default;
 
 		template<typename U>
 		U GetScaler(std::string && key)
