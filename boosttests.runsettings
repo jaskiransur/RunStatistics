@@ -28,7 +28,7 @@
         FailTestOnMemoryLeak - Set to 'true'|'1' to fail tests in case memory leaks are detected.
         Default: 'false'|'0'
         -->
-        <FailTestOnMemoryLeak>true</FailTestOnMemoryLeak>
+        <FailTestOnMemoryLeak>false</FailTestOnMemoryLeak>
 
         <!--
         LogLevel - Specify Boost.Test log verbosity.
@@ -50,7 +50,7 @@
         Default: 'false'|'0'
         Reference: http://www.boost.org/doc/libs/1_60_0/libs/test/doc/html/boost_test/utf_reference/rt_param_reference/detect_fp_exceptions.html
         -->
-        <DetectFloatingPointExceptions>true</DetectFloatingPointExceptions>
+        <DetectFloatingPointExceptions>false</DetectFloatingPointExceptions>
 
         <!--
         ExternalTestRunner - Describes the discovery and test execution mechanisms for Boost.Test executables using a custom runner implementation. Refer to 'Additional Sample Configuration Files' for sample configurations.

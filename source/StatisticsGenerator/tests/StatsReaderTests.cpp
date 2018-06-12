@@ -5,7 +5,7 @@
 
 namespace
 {
-	const std::string dataPath = "C:\\dev\\repos\\coindesk\\test_data\\data.json";
+	const std::string dataPath = ".\\data.json";
 	constexpr double tolerance = 0.01;
 }
 
