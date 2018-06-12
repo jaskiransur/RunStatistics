@@ -23,11 +23,20 @@ namespace statsgenerator
 	public:
 		using value_type = boost::property_tree::ptree;
 
+		/*@brief TreeReader,
+		* creates a Tree reader to read data from a json file
+		*@param path: points to a file
+		* the value is moved, and source path argument is not usable anymore
+		*/
 		TreeReader(boost::filesystem::path&& path)
 		:path_(std::move(path))
 		{
 		}
 
+		/*@brief TreeReader,
+		* creates a Tree reader to read data from a json file
+		*@param path: points to a const file path
+		*/
 		TreeReader(const boost::filesystem::path& path)
 			:path_(path)
 		{
@@ -65,6 +74,11 @@ namespace statsgenerator
 
 		~TreeReader() = default;
 
+		/*@brief GetScaler get a scaler value for a give key,
+		* the function is thread safe
+		*@param key: key as a string, expected to have a single value
+		*@return : a std::vector<std::pair<std::string, U>> of container of key, and value pairs
+		*/
 		template<typename U>
 		U GetScaler(std::string && key)
 		{
@@ -82,6 +96,13 @@ namespace statsgenerator
 			throw std::runtime_error("requested key not found");
 		}
 
+		/*@brief GetVector get values for a give key, 
+		* the order of data read, is not changed
+		* the function is thread safe
+		*@param key: key as a string value, e.g. "bpi";
+		* expected to have multiple values for a given key
+		*@return : a std::vector<std::pair<std::string, U>> of container of key, and value pairs
+		*/
 		template<typename U>
 		::std::vector<std::pair<std::string, U>> GetVector(const std::string & key) 
 		{
@@ -101,6 +122,13 @@ namespace statsgenerator
 			throw std::runtime_error("Key not found");
 		};
 
+		/*@brief GetKeyValues get keyvalues for a give key
+		* the values are sorted by date
+		* the function is thread safe
+		*@param key: key as a string value, e.g. "bpi";
+		* expected to have multiple values for a given key
+		*@return : a std::map<std::string, U> of key, and value pairs
+		*/
 		template<typename U>
 		::std::map<std::string, U> GetKeyValues(const std::string& key)
 		{

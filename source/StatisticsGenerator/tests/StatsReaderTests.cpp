@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(test_copy_tree_reader)
 	BOOST_CHECK(bpiMap.size() == size_t(20));
 }
 
-BOOST_AUTO_TEST_CASE(test_vector_keyvalue_data_consistency)
+BOOST_AUTO_TEST_CASE(test_vector_keyvalue_data_consistency, *boost::unit_test::tolerance(0.001))
 {
 	using namespace statsgenerator;
 
@@ -121,6 +121,6 @@ BOOST_AUTO_TEST_CASE(test_vector_keyvalue_data_consistency)
 
 	for (auto&pair : bpiVector)
 	{
-		BOOST_CHECK_CLOSE(pair.second, bpiMap[pair.first], tolerance);
+		BOOST_CHECK(pair.second == bpiMap[pair.first]);
 	}
 }

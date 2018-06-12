@@ -24,12 +24,12 @@ BOOST_AUTO_TEST_CASE( test_scaler_data_wrong_type_throws )
 }
 
 
-BOOST_AUTO_TEST_CASE(test_vector_get_wrong_data_type_returns_empty)
+BOOST_AUTO_TEST_CASE(test_vector_get_double_data_as_string_data_works)
 {
 	using namespace statsgenerator;
 	TreeReader<boost::property_tree::ptree> treereader = TreeReader<boost::property_tree::ptree>(dataPath);
 	BOOST_CHECK(treereader.GetVector<double>("disclaimer").size()== size_t(0));
-	BOOST_CHECK(treereader.GetVector<std::string>("bpi").size() == size_t(0));
+	BOOST_CHECK(treereader.GetVector<std::string>("bpi").size() == size_t(20));
 }
 
 BOOST_AUTO_TEST_CASE(test_times)

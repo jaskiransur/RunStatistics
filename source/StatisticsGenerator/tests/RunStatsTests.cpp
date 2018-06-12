@@ -19,15 +19,16 @@ namespace
 }
 
 
-BOOST_AUTO_TEST_CASE(check_data_points_between_dates)
+BOOST_AUTO_TEST_CASE(check_data_points_between_dates, *boost::unit_test::tolerance(tolerance))
 {
 	using namespace statsgenerator;
 
-	Statistics stats(dataPath);
-	auto dataPoints = stats.GetDataPoints("2018-01-09", "2018-01-16");
+	Statistics stats(dataPath, "2018-01-09", "2018-01-16");
+	auto dataPoints = stats.GetDataPoints();
 	for (size_t index = 0; index < dataPoints.size(); ++index)
 	{
-		BOOST_CHECK_CLOSE(dataPoints[index], expectedDataBetweenDates[index].second, tolerance);
+		BOOST_CHECK_MESSAGE(dataPoints[index].second == expectedDataBetweenDates[index].second,
+			(boost::format("Data Point Size is %1%, %2%") % dataPoints[index].second %expectedDataBetweenDates[index].second).str());
 	}
 }
 
@@ -40,18 +41,19 @@ BOOST_AUTO_TEST_CASE(check_all_data_points, *utf::tolerance(tolerance))
 {
 	using namespace statsgenerator;
 
-	Statistics stats(dataPath);
+	Statistics stats(dataPath, "2018-01-01", "2018-01-20");
 	auto dataPointsAll = stats.GetDataPoints();
 
 	BOOST_REQUIRE(dataPointsAll.size() == size_t(20));
 	
-	auto dataPoints = stats.GetDataPoints("2018-01-01", "2018-01-20");
+	auto dataPoints = stats.GetDataPoints();
 	BOOST_CHECK_MESSAGE(dataPoints.size() == size_t(20), 
 						(boost::format("Data Point Size is %1%") %dataPoints.size()).str());
 
 	for (size_t i = 0; i<dataPoints.size(); ++i)
 	{
-		BOOST_CHECK(dataPoints[i] == expectedDataPoints[i]);
+		BOOST_CHECK_MESSAGE(dataPoints[i].second == expectedDataPoints[i],
+			(boost::format("Data Point Size is %1%, %2%") % dataPoints[i].second %expectedDataPoints[i]).str());
 	}
 }
 
@@ -59,9 +61,9 @@ BOOST_AUTO_TEST_CASE(check_bad_dates_return_empty)
 {
 	using namespace statsgenerator;
 
-	Statistics stats(dataPath);
+	Statistics stats(dataPath, "2000-01-01", "2001-01-20");
 
-	auto dataPoints = stats.GetDataPoints("2000-01-01", "2001-01-20");
+	auto dataPoints = stats.GetDataPoints();
 	BOOST_CHECK_MESSAGE(dataPoints.size() == size_t(0),
 		(boost::format("Data Point Size is %1%") % dataPoints.size()).str());
 }
@@ -70,9 +72,9 @@ BOOST_AUTO_TEST_CASE(check_start_greater_than_end_returns_throws)
 {
 	using namespace statsgenerator;
 
-	Statistics stats(dataPath);
+	Statistics stats(dataPath, "2018-01-20", "2018-01-01");
 
-	BOOST_CHECK_THROW(stats.GetDataPoints("2018-01-20", "2018-01-01"), std::runtime_error);
+	BOOST_CHECK_THROW(stats.GetDataPoints(), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(check_highest, *utf::tolerance(tolerance))
@@ -81,8 +83,8 @@ BOOST_AUTO_TEST_CASE(check_highest, *utf::tolerance(tolerance))
 
 	Statistics stats(dataPath);
 
-	auto heighest = stats.GetHighest();
-	BOOST_CHECK(heighest.second == 17135.8);
+	auto highest = stats.GetHighest();
+	BOOST_CHECK_MESSAGE(highest.second == 17135.8, (boost::format("Highest Value %1% should match 17135.8") % highest.second).str());
 }
 
 
@@ -93,7 +95,7 @@ BOOST_AUTO_TEST_CASE(check_lowest, *utf::tolerance(tolerance))
 	Statistics stats(dataPath);
 
 	auto lowest = stats.GetLowest();
-	BOOST_CHECK(lowest.second == 11141.2);
+	BOOST_CHECK_MESSAGE(lowest.second == 11141.2, (boost::format("Lowest value %1% should match 11141.2") % lowest.second).str());
 }
 
 
@@ -104,7 +106,8 @@ BOOST_AUTO_TEST_CASE(check_mean_data_point, *utf::tolerance(tolerance))
 	Statistics stats(dataPath);
 
 	auto mean = stats.GetMeanDataPoint();
-	BOOST_CHECK(mean == 13975.2);
+	
+	BOOST_CHECK_MESSAGE(mean == 13975.2, (boost::format("Mean value %1% should match 13975.2") % mean).str());
 }
 
 BOOST_AUTO_TEST_CASE(check_median_data_point, *utf::tolerance(tolerance))
@@ -113,7 +116,7 @@ BOOST_AUTO_TEST_CASE(check_median_data_point, *utf::tolerance(tolerance))
 	Statistics stats(dataPath);
 
 	auto median = stats.GetMedianDataPoint();
-	BOOST_CHECK(median == 13287.3);
+	BOOST_CHECK_MESSAGE(median == 13287.3, (boost::format("Median value %1% should match 13287.3") % median).str());
 }
  
 BOOST_AUTO_TEST_CASE(check_std_deviation, *utf::tolerance(tolerance))
@@ -122,5 +125,6 @@ BOOST_AUTO_TEST_CASE(check_std_deviation, *utf::tolerance(tolerance))
 	Statistics stats(dataPath);
 
 	auto stddev = stats.GetStandardDevDataPoint();
-	BOOST_CHECK(stddev == 1732.22);
+	BOOST_CHECK_MESSAGE(stddev == 1732.22
+	, (boost::format("Std deviation %1% should match 1732.22") % stddev).str());
 }
